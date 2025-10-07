@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BDC CHATBOT — Mindblowing AI Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f0f1f;--card:#1b1b32;--muted:#a1aaff;--accent:#ff3ed1;--bubble:#1b1b32;--gap:14px;
+      --gradient-out:#ff3ed1, #ffae42;
+    }
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Arial;background:linear-gradient(135deg,#0f0f1f,#1b1b32);color:#e6eef6;overflow-x:hidden;}
+    .app{max-width:760px;margin:32px auto;padding:22px;border-radius:18px;background:rgba(0,0,0,0.6);backdrop-filter:blur(14px);box-shadow:0 12px 50px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.05);}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;animation:fadeIn 1s ease;}
+    header h1{font-size:20px;margin:0;background:linear-gradient(90deg,#ff3ed1,#42f5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:textGlow 2s infinite alternate;}
+    .controls{display:flex;gap:12px;align-items:center}
+    button.icon-btn{background:rgba(255,255,255,0.02);border:none;padding:10px;border-radius:12px;color:var(--muted);cursor:pointer;transition:0.3s;}
+    button.icon-btn:hover{background:rgba(255,255,255,0.1);color:#fff;transform:scale(1.1);}
+
+    .chat-wrap{height:540px;overflow:auto;padding:14px;border-radius:14px;background:rgba(255,255,255,0.02);box-shadow:inset 0 0 30px rgba(0,0,0,0.4);scroll-behavior:smooth;}
+    .message{display:flex;margin-bottom:16px;gap:12px;align-items:flex-end;animation:fadeInUp 0.6s ease;}
+    .message.outgoing{justify-content:flex-end}
+    .message .message-content{max-width:70%;display:flex;gap:10px;align-items:flex-end;}
+    .message .avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
+    .message .text{background:var(--bubble);padding:12px 16px;border-radius:18px;color:#e6eef6;line-height:1.4;white-space:pre-wrap;box-shadow:0 0 12px rgba(0,0,0,0.4);transition:0.3s;}
+    .message.outgoing .text{background:linear-gradient(90deg,var(--gradient-out));background-clip:text;-webkit-background-clip:text;color:transparent;}
+    .loading-indicator{display:flex;gap:6px;margin-left:10px}
+    .loading-bar{width:8px;height:12px;border-radius:4px;opacity:0.8;background:#ff3ed1;animation:bounce 1s infinite}
+    .loading-bar:nth-child(2){animation-delay:0.12s}
+    .loading-bar:nth-child(3){animation-delay:0.24s}
+    @keyframes bounce{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+    @keyframes fadeIn{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
+    @keyframes fadeInUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+    @keyframes textGlow{0%{text-shadow:0 0 6px #ff3ed1}100%{text-shadow:0 0 18px #42f5ff}}
+
+    .controls-row{display:flex;gap:10px;margin-top:14px}
+    form.typing-form{display:flex;gap:10px}
+    input.typing-input{flex:1;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);color:inherit;box-shadow:0 0 10px rgba(0,0,0,0.2);transition:0.3s;}
+    input.typing-input:focus{outline:none;border:1px solid var(--accent);box-shadow:0 0 12px rgba(255,62,209,0.6);}
+    button.send-btn{padding:12px 16px;border-radius:18px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer;transition:0.3s;}
+    button.send-btn:hover{transform:scale(1.05);box-shadow:0 0 12px rgba(255,62,209,0.7);}
+    .suggestions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .suggestion{background:rgba(255,255,255,0.04);padding:10px 14px;border-radius:999px;cursor:pointer;color:var(--muted);transition:0.3s;}
+    .suggestion:hover{background:rgba(255,62,209,0.2);color:#fff;transform:scale(1.05);}
+    .meta{font-size:13px;color:var(--muted);margin-top:10px;text-align:center;opacity:0.7;}
+    .credits{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;opacity:0.6;font-style:italic;}
+    .icon{cursor:pointer;user-select:none;transition:0.3s;}
+    .icon:hover{color:var(--accent);transform:scale(1.2);}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>BDC CHATBOT ✨</h1>
+      <div class="controls">
+        <button id="theme-toggle-button" class="icon-btn">light_mode</button>
+        <button id="delete-chat-button" class="icon-btn">delete</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="chat-wrap chat-list" id="chat-list" aria-live="polite"></div>
+
+      <div class="suggestions" id="suggestions">
+        <div class="suggestion"><span class="text">Explain AI in mindblowing way</span></div>
+        <div class="suggestion"><span class="text">Create 5 insane startup ideas</span></div>
+        <div class="suggestion"><span class="text">Write futuristic email template</span></div>
+      </div>
+
+      <div class="meta">Experience Google Gemini like never before. Mindblowing UI & responses!</div>
+      <div class="credits">Created by Ahsan Habib</div>
+
+      <div class="controls-row">
+        <form class="typing-form" id="typing-form">
+          <input class="typing-input" placeholder="Ask anything mindblowing..." autocomplete="off" />
+          <button class="send-btn" type="submit">Send ✨</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const typingForm = document.querySelector('.typing-form');
+    const chatContainer = document.querySelector('#chat-list');
+    const suggestions = document.querySelectorAll('.suggestion');
+    const toggleThemeButton = document.querySelector('#theme-toggle-button');
+    const deleteChatButton = document.querySelector('#delete-chat-button');
+
+    let userMessage = null;
+    let isResponseGenerating = false;
+
+    const API_KEY = "AIzaSyCIP2zrqg4k92cF_frPTU1syDd8j8fA5Vg";
+    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+
+    const createMessageElement = (content, ...classes) => {
+      const div = document.createElement('div');
+      div.classList.add('message', ...classes);
+      div.innerHTML = content;
+      return div;
+    }
+
+    const loadDataFromLocalstorage = () => {
+      const savedChats = localStorage.getItem('saved-chats');
+      const isLightMode = (localStorage.getItem('themeColor') === 'light_mode');
+      document.body.classList.toggle('light_mode', isLightMode);
+      toggleThemeButton.innerText = isLightMode ? 'dark_mode' : 'light_mode';
+      chatContainer.innerHTML = savedChats || '';
+      document.body.classList.toggle('hide-header', !!savedChats);
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    }
+
+    const showTypingEffect = (text, textElement, incomingMessageDiv) => {
+      const words = text.split(' ');
+      let i = 0;
+      const typingInterval = setInterval(() => {
+        textElement.innerText += (i === 0 ? '' : ' ') + words[i++];
+        incomingMessageDiv.querySelector('.icon')?.classList?.add('hide');
+        if (i === words.length) {
+          clearInterval(typingInterval);
+          isResponseGenerating = false;
+          incomingMessageDiv.querySelector('.icon')?.classList?.remove('hide');
+          localStorage.setItem('saved-chats', chatContainer.innerHTML);
+        }
+        chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      }, 50);
+    }
+
+    const generateAPIResponse = async (incomingMessageDiv) => {
+      const textElement = incomingMessageDiv.querySelector('.text');
+      try {
+        const resp = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': API_KEY
+          },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: userMessage }] }]
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data?.error?.message || 'API error');
+        const apiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+        showTypingEffect(apiResponse.replace(/\*\*(.*?)\*\*/g, '$1'), textElement, incomingMessageDiv);
+      } catch (err) {
+        isResponseGenerating = false;
+        textElement.innerText = 'Error: ' + (err.message || err);
+        incomingMessageDiv.classList.add('error');
+      } finally {
+        incomingMessageDiv.classList.remove('loading');
+      }
+    }
+
+    const showLoadingAnimation = () => {
+      const html = `
+        <div class="message-content">
+          <img class="avatar" src="https://iili.io/2K5KbDJ.jpg" alt="Gemini avatar">
+          <p class="text"></p>
+          <div class="loading-indicator">
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+          </div>
+        </div>
+        <span onclick="copyMessage(this)" class="icon material-symbols-outlined">content_copy</span>
+      `;
+      const incomingMessageDiv = createMessageElement(html, 'incoming', 'loading');
+      chatContainer.appendChild(incomingMessageDiv);
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      generateAPIResponse(incomingMessageDiv);
+    }
+
+    window.copyMessage = (el) => {
+      const messageText = el.parentElement.querySelector('.text').innerText;
+      navigator.clipboard.writeText(messageText).then(() => { el.innerText='done'; setTimeout(()=>el.innerText='content_copy',800); });
+    }
+
+    const handleOutgoingChat = () => {
+      userMessage = typingForm.querySelector('.typing-input').value.trim() || userMessage;
+      if (!userMessage || isResponseGenerating) return;
+      isResponseGenerating = true;
+      const html = `<div class="message-content"><img class="avatar" src="https://iili.io/2K5crx4.jpg" alt="User avatar"><p class="text"></p></div>`;
+      const outgoingMessageDiv = createMessageElement(html,'outgoing');
+      outgoingMessageDiv.querySelector('.text').innerText = userMessage;
+      chatContainer.appendChild(outgoingMessageDiv);
+      typingForm.reset();
+      document.body.classList.add('hide-header');
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      setTimeout(showLoadingAnimation, 300);
+    }
+
+    toggleThemeButton.addEventListener('click',()=>{
+      const isLight = document.body.classList.toggle('light_mode');
+      localStorage.setItem('themeColor', isLight?'light_mode':'dark_mode');
+      toggleThemeButton.innerText = isLight?'dark_mode':'light_mode';
+    });
+
+    deleteChatButton.addEventListener('click',()=>{
+      if(confirm('Delete all chats?')){localStorage.removeItem('saved-chats');loadDataFromLocalstorage();}
+    });
+
+    document.querySelectorAll('.suggestion').forEach(s=>{s.addEventListener('click',()=>{userMessage=s.querySelector('.text').innerText;handleOutgoingChat();});});
+    typingForm.addEventListener('submit',e=>{e.preventDefault();handleOutgoingChat();});
+    loadDataFromLocalstorage();
+  </script>
+</body>
+</html>
